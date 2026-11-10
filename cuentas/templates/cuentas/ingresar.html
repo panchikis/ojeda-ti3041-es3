@@ -1,0 +1,33 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Ingresar · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+
+    <section class="encabezado-catalogo login-encabezado">
+        <div>
+            <span class="eyebrow texto-oscuro">Tu cuenta</span>
+            <h2>Inicia sesión</h2>
+        </div>
+        <p>Necesitas una cuenta para comprar. </p>
+    </section>
+
+    <form class="formulario formulario-login" method="post">
+        {% csrf_token %}
+
+        {% if error %}
+            <div class="error"><p>{{ error }}</p></div>
+        {% endif %}
+
+        <label for="usuario">Usuario</label>
+        <input type="text" id="usuario" name="usuario" value="{{ usuario|default:'' }}" required>
+
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" required>
+
+        <button class="boton boton-naranja" type="submit">Ingresar</button>
+
+    
+    </form>
+
+{% endblock %}

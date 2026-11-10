@@ -1,0 +1,95 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Mi carrito · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Tu pedido</span>
+            <h2>Carrito de compras.</h2>
+        </div>
+        <p>Revisa las cantidades antes de confirmar.</p>
+    </section>
+
+    {% if lineas %}
+        <section class="carrito-lista" aria-label="Productos del carrito">
+            {% for linea in lineas %}
+                <article class="carrito-linea {% if linea.sin_stock_suficiente %}fila-problema{% endif %}">
+                    <a class="carrito-imagen" href="{% url 'catalogo:detalle' linea.producto.id %}">
+                        <img src="{{ linea.producto.imagen }}" alt="{{ linea.producto.nombre }}"
+                             onerror="this.hidden=true; this.parentElement.classList.add('sin-imagen');">
+                    </a>
+
+                    <div class="carrito-producto">
+                        <span class="categoria">{{ linea.producto.categoria }}</span>
+                        <h3><a href="{% url 'catalogo:detalle' linea.producto.id %}">{{ linea.producto.nombre }}</a></h3>
+                        <span class="precio-unitario">${{ linea.producto.precio }} por unidad</span>
+                        {% if linea.sin_stock_suficiente %}
+                            <span class="aviso-stock">Solo quedan {{ linea.producto.stock }} unidades</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="carrito-cantidad">
+                        <span class="carrito-etiqueta">Cantidad</span>
+                        <form class="form-cantidad" method="post"
+                              action="{% url 'catalogo:actualizar_carrito' linea.producto.id %}">
+                            {% csrf_token %}
+                            <input type="number" name="cantidad" value="{{ linea.cantidad }}"
+                                   min="0" max="{{ linea.producto.stock }}" aria-label="Cantidad de {{ linea.producto.nombre }}">
+                            <button type="submit">Actualizar</button>
+                        </form>
+                    </div>
+
+                    <div class="carrito-subtotal">
+                        <span class="carrito-etiqueta">Subtotal</span>
+                        <strong>${{ linea.subtotal }}</strong>
+                    </div>
+
+                    <form class="carrito-quitar" method="post" action="{% url 'catalogo:quitar_del_carrito' linea.producto.id %}">
+                        {% csrf_token %}
+                        <button class="boton-quitar" type="submit" aria-label="Quitar {{ linea.producto.nombre }}">Quitar</button>
+                    </form>
+                </article>
+            {% endfor %}
+        </section>
+
+        <div class="carrito-resumen">
+            <span>Total del pedido</span>
+            <strong class="total-carrito">${{ total }}</strong>
+        </div>
+
+        {% if hay_problemas %}
+            <div class="error">
+                <p>Hay productos con más unidades de las que quedan en stock. Ajusta las cantidades antes de confirmar.</p>
+            </div>
+        {% endif %}
+
+        <div class="acciones-carrito">
+            <form method="post" action="{% url 'catalogo:vaciar_carrito' %}">
+                {% csrf_token %}
+                <button class="boton boton-claro" type="submit">Vaciar carrito</button>
+            </form>
+
+            {% if request.session.usuario %}
+                <form method="post" action="{% url 'catalogo:confirmar_carrito' %}">
+                    {% csrf_token %}
+                    <button class="boton boton-naranja" type="submit">Confirmar compra</button>
+                </form>
+            {% else %}
+                <p class="aviso">
+                    <a href="{% url 'cuentas:ingresar' %}">Inicia sesión</a> para confirmar tu compra.
+                </p>
+            {% endif %}
+        </div>
+
+    {% else %}
+
+        <div class="carrito-vacio">
+            <p>Tu carrito está vacío.</p>
+            <a class="boton boton-naranja" href="{% url 'catalogo:lista' %}">Ver el catálogo <span>→</span></a>
+        </div>
+
+    {% endif %}
+
+{% endblock %}

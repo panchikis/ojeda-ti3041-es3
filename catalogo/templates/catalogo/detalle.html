@@ -1,0 +1,67 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}{{ producto.nombre }} · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+
+    <p class="volver"><a href="{% url 'catalogo:lista' %}">← Volver al catálogo</a></p>
+
+    <article class="ficha">
+        <div class="ficha-visual">
+            <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" onerror="this.hidden=true; this.parentElement.classList.add('sin-imagen');">
+            <span class="numero-producto">PRODUCTO {{ producto.id|stringformat:"02d" }}</span>
+        </div>
+        <div class="ficha-contenido">
+            <span class="categoria">{{ producto.categoria }}</span>
+            <h2>{{ producto.nombre }}</h2>
+            <p class="ficha-descripcion">Una herramienta confiable para hacer el trabajo con precisión y seguridad.</p>
+            <div class="ficha-precio">${{ producto.precio }}</div>
+            <dl>
+                <dt>Código</dt>
+                <dd>ALV-{{ producto.id|stringformat:"03d" }}</dd>
+                <dt>Disponibilidad</dt>
+                <dd>
+                {% if producto.stock == 0 %}
+                    Sin stock. Consulta la fecha de reposición en el mesón.
+                {% else %}
+                    {{ producto.stock }} unidades disponibles
+                {% endif %}
+                </dd>
+            </dl>
+            {% if producto.stock == 0 %}
+                <p class="aviso">Producto sin stock, no disponible para compra.</p>
+            {% else %}
+                <form class="compra-formulario" method="post" action="{% url 'catalogo:agregar_al_carrito' producto.id %}">
+                    {% csrf_token %}
+                    <label for="cantidad-carrito">Cantidad</label>
+                    <input id="cantidad-carrito" name="cantidad" type="number" min="1" max="{{ producto.stock }}" value="1" required>
+                    <button class="boton boton-claro" type="submit">Agregar al carrito <span>→</span></button>
+                </form>
+            {% endif %}
+            {% if producto.stock > 0 and request.session.usuario %}
+                <form class="compra-formulario" method="post" action="{% url 'catalogo:comprar' producto.id %}">
+                    {% csrf_token %}
+                    <label for="cantidad">Cantidad</label>
+                    <input id="cantidad" name="cantidad" type="number" min="1" max="{{ producto.stock }}" value="1" required>
+                    <button class="boton boton-naranja" type="submit">Comprar <span>→</span></button>
+                </form>
+            {% elif producto.stock > 0 %}
+                <p class="aviso"><a href="{% url 'cuentas:ingresar' %}">Inicia sesión</a> para comprar este producto.</p>
+            {% endif %}
+
+            {% if request.session.rol == "admin" %}
+                <form class="stock-formulario" method="post" action="{% url 'catalogo:agregar_stock' producto.id %}">
+                    {% csrf_token %}
+                    <label for="agregar-stock">Agregar stock</label>
+                    <div>
+                        <input id="agregar-stock" name="cantidad" type="number" min="1" placeholder="Unidades" required>
+                        <button class="boton boton-claro" type="submit">Sumar stock</button>
+                    </div>
+                </form>
+            {% endif %}
+
+            <a class="boton boton-claro" href="{% url 'catalogo:lista' %}">Seguir explorando <span>→</span></a>
+        </div>
+    </article>
+
+{% endblock %}

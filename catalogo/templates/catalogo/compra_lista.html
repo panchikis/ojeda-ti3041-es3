@@ -1,0 +1,43 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Compra confirmada · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Pedido</span>
+            <h2>{% if comprados %}¡Listo, {{ user.username }}!{% else %}No se pudo completar{% endif %}</h2>
+        </div>
+        <p>{% if comprados %}Retira tus productos en el mesón presentando tu usuario.{% endif %}</p>
+    </section>
+
+    {% if comprados %}
+        <article class="ficha">
+            <div class="ficha-contenido">
+                <dl>
+                    {% for item in comprados %}
+                        <dt>{{ item.nombre }}</dt>
+                        <dd>{{ item.cantidad }} un. · ${{ item.subtotal }}</dd>
+                    {% endfor %}
+                    <dt>Total pagado</dt>
+                    <dd class="ficha-precio">${{ total }}</dd>
+                </dl>
+            </div>
+        </article>
+    {% endif %}
+
+    {% if errores %}
+        <div class="error">
+            <p>Estos productos no se pudieron comprar y siguen en tu carrito:</p>
+            {% for e in errores %}<p>{{ e }}</p>{% endfor %}
+        </div>
+    {% endif %}
+
+    <p class="volver">
+        <a href="{% url 'catalogo:lista' %}">Seguir comprando</a>
+        ·
+        <a href="{% url 'catalogo:ver_carrito' %}">Ver mi carrito</a>
+    </p>
+
+{% endblock %}

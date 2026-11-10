@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}Ferretería Alvarito{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <header class="cabecera">
+        <div class="barra-superior">
+            <a class="marca" href="{% url 'catalogo:inicio' %}">
+                <span class="marca-icono">+</span>
+                <span>FERRETERÍA <strong>ALVARITO</strong></span>
+            </a>
+            <nav class="navegacion" aria-label="Navegación principal">
+                <a href="{% url 'catalogo:inicio' %}">Inicio</a>
+                <a class="{% if request.resolver_match.url_name == 'lista' or request.resolver_match.url_name == 'detalle' or request.resolver_match.url_name == 'comprar' %}activo{% endif %}" href="{% url 'catalogo:lista' %}">Catálogo</a>
+                {% if request.session.rol == "admin" %}
+                    <a class="{% if request.resolver_match.url_name == 'agregar_producto' %}activo{% endif %}" href="{% url 'catalogo:agregar_producto' %}">Agregar producto</a>
+                {% endif %}
+                <a href="#contacto">Contacto</a>
+            </nav>
+            <div class="acciones-cabecera" aria-label="Acciones rápidas">
+                <span class="ubicacion">Osorno, Chile</span>
+                <form class="busqueda" role="search">
+                    <input id="busqueda" type="search" placeholder="Buscar productos" aria-label="Buscar productos">
+                    <button class="icono-accion" type="submit" aria-label="Buscar">⌕</button>
+                </form>
+                <a class="icono-accion enlace-carrito" href="{% url 'catalogo:ver_carrito' %}" aria-label="Ver carrito de compras">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M3 3h2l2.4 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L20.7 7H6.1M10 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm7 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"/>
+                    </svg>
+                    {% if request.session.carrito %}<span class="burbuja">{{ request.session.carrito|length }}</span>{% endif %}
+                </a>
+                {% if request.session.usuario %}
+                    <span class="sesion">Hola, {{ request.session.nombre }}</span>
+                    <form class="form-salir" method="post" action="{% url 'cuentas:salir' %}">
+                        {% csrf_token %}
+                        <button class="icono-accion accion-salir" type="submit">Salir</button>
+                    </form>
+                {% else %}
+                    <a class="icono-accion accion-ingresar" href="{% url 'cuentas:ingresar' %}">Ingresar</a>
+                {% endif %}
+            </div>
+        </div>
+        {% block hero %}{% endblock %}
+    </header>
+
+    <main class="contenedor">
+        {% block contenido %}{% endblock %}
+    </main>
+
+    <footer class="pie" id="contacto">
+        <div><strong>FERRETERÍA ALVARITO</strong><span>Soluciones que se construyen contigo.</span></div>
+        <span>Osorno · Catálogo online</span>
+    </footer>
+
+    <script src="{% static 'js/catalogo.js' %}"></script>
+
+</body>
+</html>

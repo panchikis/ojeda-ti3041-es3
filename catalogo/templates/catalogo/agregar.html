@@ -1,0 +1,46 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Agregar producto · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+
+    <section class="encabezado-catalogo agregar-encabezado">
+        <div>
+            <span class="eyebrow texto-oscuro">Administración</span>
+            <h2>Agregar un producto.</h2>
+        </div>
+        <p>Solo visible para el rol administrador.</p>
+    </section>
+
+    <form class="formulario formulario-agregar" method="post">
+        {% csrf_token %}
+
+        {% if errores %}
+            <div class="error">
+                {% for e in errores %}<p>{{ e }}</p>{% endfor %}
+            </div>
+        {% endif %}
+
+        <label for="nombre">Nombre del producto</label>
+        <input type="text" id="nombre" name="nombre" value="{{ datos.nombre|default:'' }}" required>
+
+        <label for="categoria">Categoría</label>
+        <input type="text" id="categoria" name="categoria" list="lista-categorias"
+               value="{{ datos.categoria|default:'' }}" required>
+        <datalist id="lista-categorias">
+            {% for c in categorias %}<option value="{{ c }}"></option>{% endfor %}
+        </datalist>
+
+        <label for="precio">Precio (sin puntos ni comas)</label>
+        <input type="number" id="precio" name="precio" min="0" value="{{ datos.precio|default:'' }}" required>
+
+        <label for="stock">Stock inicial</label>
+        <input type="number" id="stock" name="stock" min="0" value="{{ datos.stock|default:'' }}" required>
+
+        <label for="imagen_url">URL de imagen</label>
+        <input type="url" id="imagen_url" name="imagen_url" value="{{ datos.imagen_url|default:'' }}" placeholder="https://ejemplo.com/imagen.jpg">
+
+        <button class="boton boton-naranja" type="submit">Agregar al catálogo</button>
+    </form>
+
+{% endblock %}

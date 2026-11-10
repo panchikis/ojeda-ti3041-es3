@@ -1,0 +1,512 @@
+[
+  {
+    "model": "catalogo.categoria",
+    "pk": 1,
+    "fields": {
+      "nombre": "Herramientas manuales"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 2,
+    "fields": {
+      "nombre": "Medición"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 3,
+    "fields": {
+      "nombre": "Herramientas eléctricas"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 4,
+    "fields": {
+      "nombre": "Accesorios eléctricos"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 5,
+    "fields": {
+      "nombre": "Fijaciones"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 6,
+    "fields": {
+      "nombre": "Pinturas"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 7,
+    "fields": {
+      "nombre": "Electricidad"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 8,
+    "fields": {
+      "nombre": "Gasfitería"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 9,
+    "fields": {
+      "nombre": "Seguridad"
+    }
+  },
+  {
+    "model": "catalogo.categoria",
+    "pk": 10,
+    "fields": {
+      "nombre": "Escaleras"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 1,
+    "fields": {
+      "nombre": "Martillo carpintero 16 oz",
+      "stock": 45,
+      "precio": 8990,
+      "categoria": 1,
+      "imagen": "/static/img/productos/martillo_carpintero_16oz.webp"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 2,
+    "fields": {
+      "nombre": "Destornillador Phillips #2",
+      "stock": 120,
+      "precio": 3490,
+      "categoria": 1,
+      "imagen": "/static/img/productos/destornillador_phillips_2.png"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 3,
+    "fields": {
+      "nombre": "Set destornilladores 6 piezas",
+      "stock": 30,
+      "precio": 12990,
+      "categoria": 1,
+      "imagen": "/static/img/productos/set_6_destornilladores.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 4,
+    "fields": {
+      "nombre": "Alicate universal 8\"",
+      "stock": 60,
+      "precio": 7490,
+      "categoria": 1,
+      "imagen": "/static/img/productos/alicate_universal_8pulg.png"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 5,
+    "fields": {
+      "nombre": "Llave ajustable 10\"",
+      "stock": 40,
+      "precio": 9990,
+      "categoria": 1,
+      "imagen": "/static/img/productos/llave-ajustable-cromada-10.webp"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 6,
+    "fields": {
+      "nombre": "Huincha de medir 5 m",
+      "stock": 85,
+      "precio": 4990,
+      "categoria": 2,
+      "imagen": "/static/img/productos/huincha_5m.webp"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 7,
+    "fields": {
+      "nombre": "Nivel de burbuja 60 cm",
+      "stock": 0,
+      "precio": 11990,
+      "categoria": 2,
+      "imagen": "/static/img/productos/nivel_60cm.webp"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 8,
+    "fields": {
+      "nombre": "Escuadra metálica 12\"",
+      "stock": 33,
+      "precio": 6490,
+      "categoria": 2,
+      "imagen": "/static/img/productos/escuadra_12pulg.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 9,
+    "fields": {
+      "nombre": "Taladro percutor 650 W",
+      "stock": 18,
+      "precio": 39990,
+      "categoria": 3,
+      "imagen": "/static/img/productos/taladro_650w.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 10,
+    "fields": {
+      "nombre": "Atornillador inalámbrico 12 V",
+      "stock": 15,
+      "precio": 49990,
+      "categoria": 3,
+      "imagen": "/static/img/productos/atornillador12v.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 11,
+    "fields": {
+      "nombre": "Esmeril angular 4-1/2\" 820 W",
+      "stock": 20,
+      "precio": 34990,
+      "categoria": 3,
+      "imagen": "/static/img/productos/esmeril_820w.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 12,
+    "fields": {
+      "nombre": "Sierra circular 7-1/4\" 1400 W",
+      "stock": 0,
+      "precio": 59990,
+      "categoria": 3,
+      "imagen": "/static/img/productos/cierra_circular.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 13,
+    "fields": {
+      "nombre": "Lijadora orbital 240 W",
+      "stock": 22,
+      "precio": 29990,
+      "categoria": 3,
+      "imagen": "/static/img/productos/lijadora240w.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 14,
+    "fields": {
+      "nombre": "Set brocas para metal 19 pzas",
+      "stock": 40,
+      "precio": 14990,
+      "categoria": 4,
+      "imagen": "/static/img/productos/brocas_metal19pz.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 15,
+    "fields": {
+      "nombre": "Disco de corte metal 4-1/2\"",
+      "stock": 300,
+      "precio": 990,
+      "categoria": 4,
+      "imagen": "/static/img/productos/disco_de_corte.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 16,
+    "fields": {
+      "nombre": "Hoja de sierra circular 40 dientes",
+      "stock": 35,
+      "precio": 8990,
+      "categoria": 4,
+      "imagen": "/static/img/productos/hoja_sierra_40d.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 17,
+    "fields": {
+      "nombre": "Tornillo autoperforante 8x1\" (100 u)",
+      "stock": 150,
+      "precio": 3990,
+      "categoria": 5,
+      "imagen": "/static/img/productos/tornillo_autoperf.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 18,
+    "fields": {
+      "nombre": "Clavo 2\" 1 kg",
+      "stock": 200,
+      "precio": 2490,
+      "categoria": 5,
+      "imagen": "/static/img/productos/clavo_2puld_1kg.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 19,
+    "fields": {
+      "nombre": "Tarugo plástico 6 mm (100 u)",
+      "stock": 0,
+      "precio": 2990,
+      "categoria": 5,
+      "imagen": "/static/img/productos/Tarugo_6_mm.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 20,
+    "fields": {
+      "nombre": "Perno hexagonal 1/2\" x 3\" (10 u)",
+      "stock": 90,
+      "precio": 4490,
+      "categoria": 5,
+      "imagen": "/static/img/productos/Perno_hexagonal.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 21,
+    "fields": {
+      "nombre": "Pintura látex interior blanco 1 gl",
+      "stock": 50,
+      "precio": 24990,
+      "categoria": 6,
+      "imagen": "/static/img/productos/Latex_blanco_1_gl.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 22,
+    "fields": {
+      "nombre": "Esmalte sintético negro 1/4 gl",
+      "stock": 42,
+      "precio": 8990,
+      "categoria": 6,
+      "imagen": "/static/img/productos/Esmalte_negro.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 23,
+    "fields": {
+      "nombre": "Rodillo antigota 9\" con mango",
+      "stock": 70,
+      "precio": 5490,
+      "categoria": 6,
+      "imagen": "/static/img/productos/Rodillo_9pulg.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 24,
+    "fields": {
+      "nombre": "Brocha 2\" cerda mixta",
+      "stock": 130,
+      "precio": 2290,
+      "categoria": 6,
+      "imagen": "/static/img/productos/Brocha_2pulg.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 25,
+    "fields": {
+      "nombre": "Cinta de enmascarar 24 mm x 40 m",
+      "stock": 160,
+      "precio": 1990,
+      "categoria": 6,
+      "imagen": "/static/img/productos/Cinta_enmascarar.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 26,
+    "fields": {
+      "nombre": "Cable eléctrico THHN 2,5 mm² (rollo 100 m)",
+      "stock": 16,
+      "precio": 34990,
+      "categoria": 7,
+      "imagen": "/static/img/productos/Cable_THHN_25mm.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 27,
+    "fields": {
+      "nombre": "Enchufe macho 10 A",
+      "stock": 140,
+      "precio": 1490,
+      "categoria": 7,
+      "imagen": "/static/img/productos/Enchufe_macho_10_A.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 28,
+    "fields": {
+      "nombre": "Interruptor simple 9/12",
+      "stock": 110,
+      "precio": 2490,
+      "categoria": 7,
+      "imagen": "/static/img/productos/Interruptor_simple.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 29,
+    "fields": {
+      "nombre": "Ampolleta LED 9 W E27",
+      "stock": 220,
+      "precio": 2990,
+      "categoria": 7,
+      "imagen": "/static/img/productos/Ampolleta_LED_9_W.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 30,
+    "fields": {
+      "nombre": "Cinta aislante 18 mm x 20 m",
+      "stock": 260,
+      "precio": 990,
+      "categoria": 7,
+      "imagen": "/static/img/productos/Cinta_aislante.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 31,
+    "fields": {
+      "nombre": "Llave de paso 1/2\" bronce",
+      "stock": 48,
+      "precio": 5990,
+      "categoria": 8,
+      "imagen": "/static/img/productos/Llave_de_paso.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 32,
+    "fields": {
+      "nombre": "Tubo PVC sanitario 110 mm x 3 m",
+      "stock": 38,
+      "precio": 8490,
+      "categoria": 8,
+      "imagen": "/static/img/productos/Tubo_PVC_110_mm.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 33,
+    "fields": {
+      "nombre": "Codo PVC 90° 50 mm",
+      "stock": 300,
+      "precio": 690,
+      "categoria": 8,
+      "imagen": "/static/img/productos/Codo_PVC_50_mm.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 34,
+    "fields": {
+      "nombre": "Teflón 12 mm x 10 m",
+      "stock": 350,
+      "precio": 490,
+      "categoria": 8,
+      "imagen": "/static/img/productos/Teflon_12_mm.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 35,
+    "fields": {
+      "nombre": "Sifón flexible lavaplatos",
+      "stock": 55,
+      "precio": 3990,
+      "categoria": 8,
+      "imagen": "/static/img/productos/Sifon_flexible.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 36,
+    "fields": {
+      "nombre": "Candado 40 mm arco corto",
+      "stock": 75,
+      "precio": 4990,
+      "categoria": 9,
+      "imagen": "/static/img/productos/Candado_40_mm.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 37,
+    "fields": {
+      "nombre": "Guantes de cabritilla talla L",
+      "stock": 95,
+      "precio": 3490,
+      "categoria": 9,
+      "imagen": "/static/img/productos/Guantes_talla_L.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 38,
+    "fields": {
+      "nombre": "Lentes de seguridad claros",
+      "stock": 140,
+      "precio": 1990,
+      "categoria": 9,
+      "imagen": "/static/img/productos/Lentes_seguridad.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 39,
+    "fields": {
+      "nombre": "Casco de obra amarillo",
+      "stock": 0,
+      "precio": 6990,
+      "categoria": 9,
+      "imagen": "/static/img/productos/Casco_de_obra.jpg"
+    }
+  },
+  {
+    "model": "catalogo.producto",
+    "pk": 40,
+    "fields": {
+      "nombre": "Escalera aluminio tijera 5 peldaños",
+      "stock": 10,
+      "precio": 44990,
+      "categoria": 10,
+      "imagen": "/static/img/productos/Escalera_5_peldanos.jpg"
+    }
+  }
+]

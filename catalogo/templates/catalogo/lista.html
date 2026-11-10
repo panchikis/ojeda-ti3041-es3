@@ -1,0 +1,71 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Catálogo · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+
+    <section class="encabezado-catalogo" id="productos">
+        <div>
+            <span class="eyebrow texto-oscuro">Selección Alvarito</span>
+            <h2>Encuentra tu próxima herramienta.</h2>
+        </div>
+        <p>Productos seleccionados para profesionales, creadores y proyectos de todos los días.</p>
+    </section>
+
+    <section class="resumen" aria-label="Resumen del catálogo">
+        <div class="dato">
+            <span class="numero">{{ total }}<small>+</small></span>
+            <span class="etiqueta">productos disponibles</span>
+        </div>
+        <div class="dato">
+            <span class="numero destacado">{{ disponibles }}</span>
+            <span class="etiqueta">con stock hoy</span>
+        </div>
+        <div class="dato">
+            <span class="numero">24/7</span>
+            <span class="etiqueta">para inspirar tus proyectos</span>
+        </div>
+    </section>
+
+    <section class="categorias" id="categorias" aria-label="Filtrar por categoría">
+        <div class="categorias-titulo">
+            <span class="eyebrow texto-oscuro">Explora por especialidad</span>
+            <h2>Categorías</h2>
+        </div>
+        <div class="categorias-lista">
+            <button class="categoria-filtro activo" type="button" data-categoria="todas">Todas</button>
+            {% for categoria in categorias %}
+                <button class="categoria-filtro" type="button" data-categoria="{{ categoria }}">{{ categoria }}</button>
+            {% endfor %}
+        </div>
+    </section>
+
+    <div class="catalogo-barra">
+        <span><strong id="contador-productos">{{ total }}</strong> productos en catálogo</span>
+        <span class="orden">Ordenar por: <strong>Disponibilidad</strong>⌄</span>
+    </div>
+
+    <section class="grid-productos" aria-label="Productos">
+        {% for producto in productos %}
+            <article class="producto-card {% if producto.stock == 0 %}agotado{% endif %}" data-nombre="{{ producto.nombre|lower }}" data-categoria="{{ producto.categoria }}">
+                <a class="producto-imagen" href="{% url 'catalogo:detalle' producto.id %}" aria-label="Ver {{ producto.nombre }}">
+                    <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" loading="lazy" onerror="this.hidden=true; this.parentElement.classList.add('sin-imagen');">
+                    <span class="numero-producto">{{ producto.id|stringformat:"02d" }}</span>
+                    {% if producto.stock == 0 %}<span class="marca-agotado">Agotado</span>{% endif %}
+                </a>
+                <div class="producto-info">
+                    <span class="categoria">{{ producto.categoria }}</span>
+                    <h3><a href="{% url 'catalogo:detalle' producto.id %}">{{ producto.nombre }}</a></h3>
+                    <div class="producto-pie">
+                        <strong class="precio">${{ producto.precio }}</strong>
+                        {% if producto.stock > 0 %}<span class="stock">● En stock</span>{% endif %}
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <p class="vacio">Todavía no hay productos cargados en el catálogo.</p>
+        {% endfor %}
+        <p class="vacio sin-resultados" hidden>No encontramos productos con ese criterio.</p>
+    </section>
+
+{% endblock %}

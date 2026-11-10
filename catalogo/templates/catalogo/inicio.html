@@ -1,0 +1,66 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Ferretería Alvarito · Inicio{% endblock %}
+
+{# El hero solo aparece en la landing. Las demás páginas dejan el bloque vacío. #}
+{% block hero %}
+        <div class="hero">
+            <div class="hero-contenido">
+                <span class="eyebrow">Suministros para cada proyecto</span>
+                <h1>Todo lo que necesitas<br><em>para construir.</em></h1>
+                <p>Herramientas confiables, materiales de calidad y atención cercana para tus proyectos.</p>
+                <a class="boton boton-claro" href="{% url 'catalogo:lista' %}">Explorar catálogo <span>→</span></a>
+            </div>
+            <div class="hero-marca" aria-hidden="true">ALV / 01</div>
+        </div>
+{% endblock %}
+
+{% block contenido %}
+
+    <section class="resumen" aria-label="Resumen del catálogo">
+        <div class="dato">
+            <span class="numero">{{ total }}<small>+</small></span>
+            <span class="etiqueta">productos en catálogo</span>
+        </div>
+        <div class="dato">
+            <span class="numero destacado">{{ disponibles }}</span>
+            <span class="etiqueta">con stock hoy</span>
+        </div>
+        <div class="dato">
+            <span class="numero">{{ categorias|length }}</span>
+            <span class="etiqueta">categorías distintas</span>
+        </div>
+    </section>
+
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Selección Alvarito</span>
+            <h2>Destacados de la semana.</h2>
+        </div>
+        <p>Una muestra de lo que tenemos. Entra al catálogo para ver los {{ total }} productos.</p>
+    </section>
+
+    <section class="grid-productos" aria-label="Productos destacados">
+        {% for producto in destacados %}
+            <article class="producto-card {% if producto.stock == 0 %}agotado{% endif %}">
+                <a class="producto-imagen" href="{% url 'catalogo:detalle' producto.id %}">
+                    <img src="{{ producto.imagen }}" alt="{{ producto.nombre }}" loading="lazy"
+                         onerror="this.hidden=true; this.parentElement.classList.add('sin-imagen');">
+                    <span class="numero-producto">{{ producto.id|stringformat:"02d" }}</span>
+                    {% if producto.stock == 0 %}<span class="marca-agotado">Agotado</span>{% endif %}
+                </a>
+                <div class="producto-info">
+                    <span class="categoria">{{ producto.categoria }}</span>
+                    <h3><a href="{% url 'catalogo:detalle' producto.id %}">{{ producto.nombre }}</a></h3>
+                    <div class="producto-pie">
+                        <strong class="precio">${{ producto.precio }}</strong>
+                        {% if producto.stock > 0 %}<span class="stock">● En stock</span>{% endif %}
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </section>
+
+    <p class="volver"><a href="{% url 'catalogo:lista' %}">Ver el catálogo completo →</a></p>
+
+{% endblock %}
