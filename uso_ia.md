@@ -16,3 +16,9 @@ prompt: haz que la lista de los reportes se vean como tablas, te adjunto el form
 respuesta: creó las tablas
 
 
+Petición 3
+Le pedí que agregara los estilos a los formularios de consulta y a la tabla de consultas que puede ver el admin
+
+Prompt: Agrega los estilos de las tablas de reportes a las tablas, 
+
+Respuesta: 

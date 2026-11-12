@@ -1,9 +1,9 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
 
-from .models import Categoria, Producto
+from .models import Categoria, ConsultaCliente, Producto
 
 
 class CatalogoViewsTests(TestCase):
@@ -136,7 +136,7 @@ class CatalogoViewsTests(TestCase):
 
         respuesta = self.client.get(reverse("catalogo:reporte_stock_critico"))
 
-        self.assertContains(respuesta, 'href="/static/css/style.css?v=2"')
+        self.assertContains(respuesta, 'href="/static/css/style.css?v=4"')
         self.assertContains(respuesta, 'class="reporte-tabla"')
 
     def test_detalle_y_imagen_svg_cargan_producto_de_la_base_de_datos(self):
@@ -152,6 +152,243 @@ class CatalogoViewsTests(TestCase):
         self.assertEqual(imagen.status_code, 200)
         self.assertEqual(imagen["Content-Type"], "image/svg+xml")
         self.assertContains(imagen, self.producto.nombre)
+
+    def test_detalle_guarda_los_ultimos_tres_productos_visitados_en_sesion(self):
+        productos = [self.producto]
+        for nombre in ("Nivel", "Alicate", "Sierra"):
+            productos.append(
+                Producto.objects.create(
+                    nombre=nombre,
+                    stock=4,
+                    precio=3000,
+                    categoria=self.categoria,
+                )
+            )
+
+        for producto in productos:
+            respuesta = self.client.get(
+                reverse("catalogo:detalle", args=[producto.pk])
+            )
+
+        self.assertEqual(
+            self.client.session["productos_visitados"],
+            [productos[3].pk, productos[2].pk, productos[1].pk],
+        )
+        self.assertEqual(
+            [producto.pk for producto in respuesta.context["productos_recientes"]],
+            [productos[3].pk, productos[2].pk, productos[1].pk],
+        )
+        self.assertContains(respuesta, "Vistos recientemente")
+        self.assertContains(respuesta, f'src="{productos[3].imagen}"')
+
+    def test_detalle_muestra_producto_visitado_desde_la_primera_visita(self):
+        respuesta = self.client.get(
+            reverse("catalogo:detalle", args=[self.producto.pk])
+        )
+
+        self.assertContains(respuesta, "Vistos recientemente")
+        self.assertContains(respuesta, self.producto.nombre)
+        self.assertEqual(
+            self.client.session["productos_visitados"],
+            [self.producto.pk],
+        )
+
+    def test_inicio_muestra_productos_recientes_con_imagenes_de_la_sesion(self):
+        self.client.get(reverse("catalogo:detalle", args=[self.producto.pk]))
+
+        respuesta = self.client.get(reverse("catalogo:inicio"))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(
+            [producto.pk for producto in respuesta.context["productos_recientes"]],
+            [self.producto.pk],
+        )
+        self.assertContains(respuesta, "Vistos recientemente")
+        self.assertContains(respuesta, f'src="{self.producto.imagen}"')
+
+    def test_contacto_muestra_formulario_con_csrf(self):
+        respuesta = self.client.get(reverse("catalogo:contacto"))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, 'name="csrfmiddlewaretoken"')
+        self.assertContains(respuesta, 'name="correo"')
+        self.assertContains(respuesta, 'name="producto"')
+        self.assertContains(
+            respuesta,
+            "Déjanos tu mensaje y te responderemos al correo que nos indiques a la brevedad posible.",
+        )
+        self.assertContains(respuesta, 'class="formulario formulario-contacto"')
+
+    def test_contacto_rechaza_campos_vacios_correo_invalido_y_texto_corto(self):
+        casos_invalidos = (
+            ({}, {"nombre", "correo", "mensaje"}),
+            (
+                {"nombre": "Ana María", "correo": "esto-no-es-correo", "mensaje": "Necesito ayuda con mi pedido"},
+                {"correo"},
+            ),
+            (
+                {"nombre": "Al", "correo": "ana@example.com", "mensaje": "Necesito ayuda con mi pedido"},
+                {"nombre"},
+            ),
+            (
+                {"nombre": "Ana María", "correo": "ana@example.com", "mensaje": "Ayuda"},
+                {"mensaje"},
+            ),
+        )
+
+        for datos, campos_esperados in casos_invalidos:
+            with self.subTest(datos=datos):
+                respuesta = self.client.post(reverse("catalogo:contacto"), datos)
+                self.assertEqual(respuesta.status_code, 200)
+                formulario = respuesta.context["formulario"]
+                self.assertFalse(formulario.is_valid())
+                self.assertTrue(campos_esperados.issubset(formulario.errors))
+
+        self.assertEqual(ConsultaCliente.objects.count(), 0)
+
+    def test_contacto_guarda_consulta_con_producto_opcional_y_muestra_referencia(self):
+        respuesta = self.client.post(
+            reverse("catalogo:contacto"),
+            {
+                "nombre": "  Ana María  ",
+                "correo": "ana@example.com",
+                "mensaje": "  Necesito ayuda con un producto.  ",
+            },
+        )
+
+        consulta = ConsultaCliente.objects.get()
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(consulta.nombre, "Ana María")
+        self.assertEqual(consulta.mensaje, "Necesito ayuda con un producto.")
+        self.assertIsNone(consulta.producto)
+        self.assertContains(respuesta, f"#{consulta.pk}")
+
+    def test_admin_puede_ver_consultas_desde_la_sesion_del_sitio(self):
+        self.guardar_sesion(rol="admin")
+        consulta = ConsultaCliente.objects.create(
+            nombre="Ana María",
+            correo="ana@example.com",
+            mensaje="Necesito ayuda con este producto.",
+            producto=self.producto,
+        )
+
+        respuesta = self.client.get(reverse("catalogo:consultas_clientes"))
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertContains(respuesta, consulta.nombre)
+        self.assertContains(respuesta, consulta.correo)
+        self.assertContains(respuesta, consulta.mensaje)
+        self.assertContains(respuesta, self.producto.nombre)
+        self.assertContains(respuesta, "Consultas")
+        self.assertContains(respuesta, 'class="reporte-tabla-contenedor consultas-tabla"')
+
+    def test_admin_puede_cambiar_consulta_a_cualquiera_de_los_estados(self):
+        self.guardar_sesion(rol="admin")
+        consulta = ConsultaCliente.objects.create(
+            nombre="Ana María",
+            correo="ana@example.com",
+            mensaje="Necesito ayuda con este producto.",
+        )
+        estados = (
+            ConsultaCliente.Estado.EN_REVISION,
+            ConsultaCliente.Estado.RESPONDIDA,
+            ConsultaCliente.Estado.CERRADA,
+            ConsultaCliente.Estado.PENDIENTE,
+        )
+
+        for estado in estados:
+            with self.subTest(estado=estado):
+                respuesta = self.client.post(
+                    reverse(
+                        "catalogo:actualizar_estado_consulta",
+                        args=[consulta.pk],
+                    ),
+                    {"estado": estado},
+                )
+                self.assertRedirects(
+                    respuesta,
+                    reverse("catalogo:consultas_clientes"),
+                )
+                consulta.refresh_from_db()
+                self.assertEqual(consulta.estado, estado)
+
+    def test_cambiar_estado_rechaza_opciones_invalidas_y_usuarios_no_admin(self):
+        consulta = ConsultaCliente.objects.create(
+            nombre="Ana María",
+            correo="ana@example.com",
+            mensaje="Necesito ayuda con este producto.",
+        )
+        url = reverse(
+            "catalogo:actualizar_estado_consulta",
+            args=[consulta.pk],
+        )
+
+        self.guardar_sesion(rol="admin")
+        respuesta_invalida = self.client.post(url, {"estado": "desconocido"})
+        self.assertEqual(respuesta_invalida.status_code, 400)
+        consulta.refresh_from_db()
+        self.assertEqual(consulta.estado, ConsultaCliente.Estado.PENDIENTE)
+
+        self.guardar_sesion(rol="cliente")
+        respuesta_cliente = self.client.post(
+            url,
+            {"estado": ConsultaCliente.Estado.CERRADA},
+        )
+        self.assertRedirects(
+            respuesta_cliente,
+            reverse("cuentas:ingresar"),
+            fetch_redirect_response=False,
+        )
+        consulta.refresh_from_db()
+        self.assertEqual(consulta.estado, ConsultaCliente.Estado.PENDIENTE)
+
+    def test_consultas_solo_son_accesibles_para_admin(self):
+        url = reverse("catalogo:consultas_clientes")
+
+        respuesta_anonimo = self.client.get(url)
+        self.assertRedirects(
+            respuesta_anonimo,
+            reverse("cuentas:ingresar"),
+            fetch_redirect_response=False,
+        )
+
+        self.guardar_sesion(rol="cliente")
+        respuesta_cliente = self.client.get(url)
+        self.assertRedirects(
+            respuesta_cliente,
+            reverse("cuentas:ingresar"),
+            fetch_redirect_response=False,
+        )
+
+    def test_consulta_conserva_datos_si_se_elimina_el_producto(self):
+        consulta = ConsultaCliente.objects.create(
+            nombre="Ana María",
+            correo="ana@example.com",
+            mensaje="Necesito ayuda con este producto.",
+            producto=self.producto,
+        )
+
+        self.producto.delete()
+        consulta.refresh_from_db()
+
+        self.assertIsNone(consulta.producto)
+
+    def test_contacto_rechaza_post_sin_token_csrf(self):
+        cliente_csrf = Client(enforce_csrf_checks=True)
+        url = reverse("catalogo:contacto")
+        cliente_csrf.get(url)
+
+        respuesta = cliente_csrf.post(
+            url,
+            {
+                "nombre": "Ana María",
+                "correo": "ana@example.com",
+                "mensaje": "Necesito ayuda con un producto.",
+            },
+        )
+
+        self.assertEqual(respuesta.status_code, 403)
+        self.assertEqual(ConsultaCliente.objects.count(), 0)
 
     def test_detalle_admin_muestra_botones_de_editar_y_eliminar_sin_agregar_stock(self):
         self.guardar_sesion(rol="admin")
@@ -273,6 +510,7 @@ class CatalogoAdminTests(TestCase):
         for url_name in (
             "admin:catalogo_categoria_changelist",
             "admin:catalogo_producto_changelist",
+            "admin:catalogo_consultacliente_changelist",
         ):
             with self.subTest(url_name=url_name):
                 response = self.client.get(reverse(url_name))

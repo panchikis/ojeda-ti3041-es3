@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=4">
 </head>
 <body>
 
@@ -25,8 +25,9 @@
                     <a class="{% if request.resolver_match.url_name == 'reporte_categorias' %}activo{% endif %}" href="{% url 'catalogo:reporte_categorias' %}">Reporte por categoría</a>
                     <a class="{% if request.resolver_match.url_name == 'reporte_stock_critico' %}activo{% endif %}" href="{% url 'catalogo:reporte_stock_critico' %}">Stock crítico</a>
                     <a class="{% if request.resolver_match.url_name == 'agregar_producto' %}activo{% endif %}" href="{% url 'catalogo:agregar_producto' %}">Agregar producto</a>
+                    <a class="{% if request.resolver_match.url_name == 'consultas_clientes' %}activo{% endif %}" href="{% url 'catalogo:consultas_clientes' %}">Consultas</a>
                 {% endif %}
-                <a href="#contacto">Contacto</a>
+                <a class="{% if request.resolver_match.url_name == 'contacto' %}activo{% endif %}" href="{% url 'catalogo:contacto' %}">Contacto</a>
             </nav>
             <div class="acciones-cabecera" aria-label="Acciones rápidas">
                 <span class="ubicacion">Osorno, Chile</span>

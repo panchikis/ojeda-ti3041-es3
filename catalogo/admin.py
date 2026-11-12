@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Categoria, Producto
+from .models import Categoria, ConsultaCliente, Producto
 
 
 class CategoriaAdmin(admin.ModelAdmin):
@@ -16,3 +16,12 @@ class ProductoAdmin(admin.ModelAdmin):
 
 admin.site.register(Categoria, CategoriaAdmin)
 admin.site.register(Producto, ProductoAdmin)
+
+
+@admin.register(ConsultaCliente)
+class ConsultaClienteAdmin(admin.ModelAdmin):
+    list_display = ("id", "nombre", "correo", "producto", "fecha", "estado")
+    list_filter = ("estado", "fecha")
+    list_editable = ("estado",)
+    search_fields = ("nombre", "correo", "mensaje")
+    readonly_fields = ("fecha",)

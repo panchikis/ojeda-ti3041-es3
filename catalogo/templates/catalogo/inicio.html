@@ -63,4 +63,24 @@
 
     <p class="volver"><a href="{% url 'catalogo:lista' %}">Ver el catálogo completo →</a></p>
 
+    {% if productos_recientes %}
+        <section class="productos-recientes" aria-label="Últimos productos visitados">
+            <h2>Vistos recientemente</h2>
+            <div class="productos-recientes-lista">
+                {% for reciente in productos_recientes %}
+                    <a href="{% url 'catalogo:detalle' reciente.id %}">
+                        <span class="producto-reciente-imagen">
+                            <img src="{{ reciente.imagen }}" alt="{{ reciente.nombre }}" loading="lazy"
+                                 onerror="this.hidden=true; this.parentElement.classList.add('sin-imagen');">
+                        </span>
+                        <span class="producto-reciente-info">
+                            <span class="categoria">{{ reciente.categoria.nombre }}</span>
+                            <strong>{{ reciente.nombre }}</strong>
+                        </span>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
 {% endblock %}

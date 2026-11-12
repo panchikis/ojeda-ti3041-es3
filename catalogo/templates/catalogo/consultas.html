@@ -1,0 +1,60 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Consultas de clientes · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Administración</span>
+            <h2>Consultas de clientes.</h2>
+        </div>
+    </section>
+
+    <div class="reporte-tabla-contenedor consultas-tabla">
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Cliente</th>
+                    <th scope="col">Correo</th>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Mensaje</th>
+                    <th scope="col">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for consulta in consultas %}
+                    <tr>
+                        <td>{{ consulta.fecha|date:"d/m/Y H:i" }}</td>
+                        <td>{{ consulta.nombre }}</td>
+                        <td><a href="mailto:{{ consulta.correo }}">{{ consulta.correo }}</a></td>
+                        <td>
+                            {% if consulta.producto %}
+                                <a href="{% url 'catalogo:detalle' consulta.producto.pk %}">{{ consulta.producto.nombre }}</a>
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>{{ consulta.mensaje|linebreaksbr }}</td>
+                        <td>
+                            <form class="estado-consulta-form" method="post" action="{% url 'catalogo:actualizar_estado_consulta' consulta.pk %}">
+                                {% csrf_token %}
+                                <label class="solo-lectores" for="estado-{{ consulta.pk }}">Estado de {{ consulta.nombre }}</label>
+                                <select id="estado-{{ consulta.pk }}" name="estado">
+                                    {% for valor, etiqueta in estados_consulta %}
+                                        <option value="{{ valor }}" {% if consulta.estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+                                    {% endfor %}
+                                </select>
+                                <button class="boton boton-claro" type="submit">Guardar</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td class="reporte-vacio" colspan="6">Todavía no hay consultas de clientes.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

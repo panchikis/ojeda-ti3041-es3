@@ -19,3 +19,30 @@ class Producto(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class ConsultaCliente(models.Model):
+    class Estado(models.TextChoices):
+        PENDIENTE = "pendiente", "Pendiente"
+        EN_REVISION = "en_revision", "En revisión"
+        RESPONDIDA = "respondida", "Respondida"
+        CERRADA = "cerrada", "Cerrada"
+
+    nombre = models.CharField(max_length=100)
+    correo = models.EmailField()
+    mensaje = models.TextField()
+    producto = models.ForeignKey(
+        Producto,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+    fecha = models.DateTimeField(auto_now_add=True)
+    estado = models.CharField(
+        max_length=20,
+        choices=Estado.choices,
+        default=Estado.PENDIENTE,
+    )
+
+    def __str__(self):
+        return f"{self.nombre} - {self.fecha}"

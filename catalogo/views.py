@@ -1,11 +1,12 @@
 from django.db.models import Avg, Count, F, Sum
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 
 from . import carrito as bolsa
-from .models import Categoria, Producto
+from .forms import ConsultaClienteForm
+from .models import Categoria, ConsultaCliente, Producto
 
 
 def imagen_producto(_request, id):
@@ -54,6 +55,85 @@ def lista(request):
     return render(request, "catalogo/lista.html", contexto)
 
 
+def contacto(request):
+    if request.method == "POST":
+        formulario = ConsultaClienteForm(request.POST)
+        if formulario.is_valid():
+            consulta = formulario.save()
+            return render(
+                request,
+                "catalogo/contacto_listo.html",
+                {"consulta": consulta},
+            )
+    else:
+        formulario = ConsultaClienteForm()
+
+    return render(request, "catalogo/contacto.html", {"formulario": formulario})
+
+
+def _obtener_productos_recientes(request, producto_actual=None):
+    visitados = request.session.get("productos_visitados", [])
+    if not isinstance(visitados, list):
+        visitados = []
+
+    ids_visitados = []
+    if producto_actual is not None:
+        ids_visitados.append(producto_actual.pk)
+
+    for producto_id in visitados:
+        try:
+            producto_id = int(producto_id)
+        except (TypeError, ValueError):
+            continue
+        if producto_id not in ids_visitados:
+            ids_visitados.append(producto_id)
+        if len(ids_visitados) == 3:
+            break
+
+    productos_por_id = {
+        producto.pk: producto
+        for producto in Producto.objects.select_related("categoria").filter(
+            pk__in=ids_visitados
+        )
+    }
+    ids_visitados = [
+        producto_id for producto_id in ids_visitados if producto_id in productos_por_id
+    ]
+    request.session["productos_visitados"] = ids_visitados
+    return [productos_por_id[pk] for pk in ids_visitados]
+
+
+def consultas_clientes(request):
+    if request.session.get("rol") != "admin":
+        return redirect("cuentas:ingresar")
+
+    consultas = ConsultaCliente.objects.select_related("producto").order_by("-fecha")
+    return render(
+        request,
+        "catalogo/consultas.html",
+        {
+            "consultas": consultas,
+            "estados_consulta": ConsultaCliente.Estado.choices,
+        },
+    )
+
+
+def actualizar_estado_consulta(request, id):
+    if request.session.get("rol") != "admin":
+        return redirect("cuentas:ingresar")
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    consulta = get_object_or_404(ConsultaCliente, pk=id)
+    estado = request.POST.get("estado")
+    if estado not in ConsultaCliente.Estado.values:
+        return HttpResponseBadRequest("Estado de consulta no válido.")
+
+    consulta.estado = estado
+    consulta.save(update_fields=["estado"])
+    return redirect("catalogo:consultas_clientes")
+
+
 def reporte_categorias(request):
     if request.session.get("rol") != "admin":
         return redirect("cuentas:ingresar")
@@ -100,7 +180,16 @@ def detalle(request, id):
         Producto.objects.select_related("categoria"),
         pk=id,
     )
-    return render(request, "catalogo/detalle.html", {"producto": producto})
+    productos_recientes = _obtener_productos_recientes(request, producto)
+
+    return render(
+        request,
+        "catalogo/detalle.html",
+        {
+            "producto": producto,
+            "productos_recientes": productos_recientes,
+        },
+    )
 
 
 def agregar_stock(request, id):
@@ -127,6 +216,7 @@ def inicio(request):
         "total": Producto.objects.count(),
         "disponibles": Producto.objects.filter(stock__gt=0).count(),
         "categorias": Categoria.objects.order_by("nombre"),
+        "productos_recientes": _obtener_productos_recientes(request),
     }
     return render(request, "catalogo/inicio.html", contexto)
 

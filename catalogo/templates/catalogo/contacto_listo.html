@@ -1,0 +1,15 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Consulta recibida · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Mensaje recibido</span>
+            <h2>Gracias, {{ consulta.nombre }}.</h2>
+        </div>
+        <p>Guardamos tu consulta. Su número de referencia es <strong>#{{ consulta.pk }}</strong>.</p>
+    </section>
+
+    <a class="boton boton-naranja" href="{% url 'catalogo:lista' %}">Volver al catálogo <span>→</span></a>
+{% endblock %}

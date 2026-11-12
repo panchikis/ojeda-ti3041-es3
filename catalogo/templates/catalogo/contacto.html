@@ -1,0 +1,36 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Contacto · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+    <section class="encabezado-catalogo encabezado-contacto">
+        <div>
+            <span class="eyebrow texto-oscuro">Escríbenos</span>
+            <h2>¿Tienes una consulta?</h2>
+            <p>Déjanos tu mensaje y te responderemos al correo que nos indiques a la brevedad posible.</p>
+        </div>
+    </section>
+
+    <form class="formulario formulario-contacto" method="post">
+        {% csrf_token %}
+
+        {% if formulario.non_field_errors %}
+            <div class="error">
+                {% for error in formulario.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+        {% endif %}
+
+        {% for campo in formulario %}
+            <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+            {{ campo }}
+            {% if campo.help_text %}<small class="ayuda-campo">{{ campo.help_text }}</small>{% endif %}
+            {% if campo.errors %}
+                <div class="error error-campo">
+                    {% for error in campo.errors %}<p>{{ error }}</p>{% endfor %}
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <button class="boton boton-naranja" type="submit">Enviar consulta</button>
+    </form>
+{% endblock %}
