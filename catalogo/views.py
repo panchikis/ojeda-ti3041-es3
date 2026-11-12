@@ -90,46 +90,6 @@ def inicio(request):
     return render(request, "catalogo/inicio.html", contexto)
 
 
-def comprar(request, id):
-    if "usuario" not in request.session:
-        return redirect("cuentas:ingresar")
-
-    producto = get_object_or_404(
-        Producto.objects.select_related("categoria"),
-        pk=id,
-    )
-
-    if producto.stock == 0:
-        contexto = {"producto": producto, "sin_stock": True}
-        return render(request, "catalogo/comprar.html", contexto)
-
-    cantidad = 0
-    error = None
-    if request.method == "POST":
-        try:
-            cantidad = int(request.POST.get("cantidad", "0"))
-        except ValueError:
-            cantidad = 0
-
-        if cantidad < 1:
-            error = "Selecciona al menos una unidad."
-        else:
-            actualizado = Producto.objects.filter(
-                pk=producto.pk,
-                stock__gte=cantidad,
-            ).update(stock=F("stock") - cantidad)
-            producto.refresh_from_db()
-            if not actualizado:
-                error = f"Solo quedan {producto.stock} unidades disponibles."
-
-    if request.method != "POST" or error:
-        contexto = {"producto": producto, "sin_stock": False, "error": error}
-        return render(request, "catalogo/comprar.html", contexto)
-
-    contexto = {"producto": producto, "sin_stock": False, "cantidad": cantidad}
-    return render(request, "catalogo/comprar.html", contexto)
-
-
 def agregar_producto(request):
     if request.session.get("rol", "") != "admin":
         return redirect("cuentas:ingresar")
@@ -185,7 +145,7 @@ def agregar_producto(request):
         if not imagen_url:
             producto.imagen = reverse("catalogo:imagen_producto", args=[producto.pk])
             producto.save(update_fields=["imagen"])
-        return redirect("catalogo:detalle", id=producto.pk)
+        return redirect("catalogo:lista")
 
     contexto = {
         "categorias": Categoria.objects.order_by("nombre").values_list(
@@ -196,22 +156,104 @@ def agregar_producto(request):
     return render(request, "catalogo/agregar.html", contexto)
 
 
-def ver_carrito(request):
-    guardado = bolsa.obtener_carrito(request)
-    ids = []
-    for clave in guardado.keys():
-        try:
-            ids.append(int(clave))
-        except (TypeError, ValueError):
-            continue
 
+
+
+
+
+def editar_producto(request, id):
+    """Edita un producto existente desde el sitio."""
+    if request.session.get("rol", "") != "admin":
+        return redirect("cuentas:ingresar")
+
+    producto = get_object_or_404(Producto, pk=id)
+
+    if request.method == "POST":
+        nombre = request.POST.get("nombre", "").strip()
+        categoria = request.POST.get("categoria", "").strip()
+        precio = request.POST.get("precio", "").strip()
+        stock = request.POST.get("stock", "").strip()
+        imagen = request.POST.get("imagen", "").strip()
+
+        errores = []
+        if nombre == "":
+            errores.append("El nombre es obligatorio.")
+        if categoria == "":
+            errores.append("La categoria es obligatoria.")
+
+        try:
+            precio = int(precio)
+            if precio < 0:
+                errores.append("El precio no puede ser negativo.")
+        except ValueError:
+            errores.append("El precio tiene que ser un numero entero.")
+
+        try:
+            stock = int(stock)
+            if stock < 0:
+                errores.append("El stock no puede ser negativo.")
+        except ValueError:
+            errores.append("El stock tiene que ser un numero entero.")
+
+        if errores:
+            contexto = {
+                "producto": producto,
+                "errores": errores,
+                "categorias": Categoria.objects.order_by("nombre").values_list(
+                    "nombre", flat=True,
+                ),
+                "datos": request.POST,
+            }
+            return render(request, "catalogo/editar.html", contexto)
+
+        categoria_obj, _ = Categoria.objects.get_or_create(nombre=categoria)
+
+        producto.nombre = nombre
+        producto.categoria = categoria_obj
+        producto.precio = precio
+        producto.stock = stock
+        producto.imagen = imagen
+        producto.save()
+
+        return redirect("catalogo:lista")
+
+    contexto = {
+        "producto": producto,
+        "categorias": Categoria.objects.order_by("nombre").values_list(
+            "nombre", flat=True,
+        ),
+    }
+    return render(request, "catalogo/editar.html", contexto)
+
+
+def eliminar_producto(request, id):
+    """Elimina un producto, pidiendo confirmacion antes."""
+    if request.session.get("rol", "") != "admin":
+        return redirect("cuentas:ingresar")
+
+    producto = get_object_or_404(Producto, pk=id)
+
+    if request.method == "POST":
+        producto.delete()
+        return redirect("catalogo:lista")
+
+    return render(request, "catalogo/eliminar.html", {"producto": producto})
+
+
+
+def ver_carrito(request):
+    """Muestra el carrito con sus productos, subtotales y total."""
+    guardado = bolsa.obtener_carrito(request)
+
+    ids = [int(clave) for clave in guardado.keys()]
     productos = Producto.objects.select_related("categoria").filter(pk__in=ids)
+
     lineas = []
     total = 0
     for producto in productos:
-        cantidad = guardado.get(str(producto.pk), 0)
+        cantidad = guardado[str(producto.pk)]
         subtotal = producto.precio * cantidad
-        total += subtotal
+        total = total + subtotal
         lineas.append({
             "producto": producto,
             "cantidad": cantidad,
@@ -228,48 +270,54 @@ def ver_carrito(request):
 
 
 def agregar_al_carrito(request, id):
+    """Agrega unidades de un producto al carrito."""
     producto = get_object_or_404(Producto, pk=id)
+
     if request.method == "POST":
         try:
             cantidad = int(request.POST.get("cantidad", "1"))
-        except (TypeError, ValueError):
+        except ValueError:
             cantidad = 1
-        if cantidad > 0:
-            actual = bolsa.obtener_carrito(request).get(str(producto.pk), 0)
-            if actual + cantidad <= producto.stock:
-                bolsa.agregar(request, producto.pk, cantidad)
+
+        if cantidad > 0 and producto.stock > 0:
+            bolsa.agregar(request, producto.pk, cantidad)
+
     return redirect("catalogo:ver_carrito")
 
 
 def actualizar_carrito(request, id):
-    producto = get_object_or_404(Producto, pk=id)
+    """Cambia la cantidad de un producto que ya esta en el carrito."""
     if request.method == "POST":
         try:
             cantidad = int(request.POST.get("cantidad", "0"))
-        except (TypeError, ValueError):
+        except ValueError:
             cantidad = 0
-        if cantidad <= producto.stock:
-            bolsa.cambiar_cantidad(request, producto.pk, cantidad)
-        else:
-            bolsa.cambiar_cantidad(request, producto.pk, producto.stock)
+        bolsa.cambiar_cantidad(request, id, cantidad)
+
     return redirect("catalogo:ver_carrito")
 
 
 def quitar_del_carrito(request, id):
+    """Saca un producto del carrito."""
     if request.method == "POST":
         bolsa.quitar(request, id)
+
     return redirect("catalogo:ver_carrito")
 
 
 def vaciar_carrito(request):
+    """Deja el carrito vacio."""
     if request.method == "POST":
         bolsa.vaciar(request)
+
     return redirect("catalogo:ver_carrito")
 
 
 def confirmar_carrito(request):
+    """Confirma la compra: descuenta el stock de todos los productos."""
     if "usuario" not in request.session:
         return redirect("cuentas:ingresar")
+
     if request.method != "POST":
         return redirect("catalogo:ver_carrito")
 
@@ -279,16 +327,10 @@ def confirmar_carrito(request):
 
     comprados = []
     errores = []
-    exitosas = set()
-    for clave, cantidad in guardado.items():
-        try:
-            producto_id = int(clave)
-            cantidad = int(cantidad)
-        except (TypeError, ValueError):
-            continue
 
-        producto = Producto.objects.filter(pk=producto_id).first()
-        if producto is None or cantidad < 1:
+    for clave, cantidad in guardado.items():
+        producto = Producto.objects.filter(pk=int(clave)).first()
+        if producto is None:
             continue
 
         actualizado = Producto.objects.filter(
@@ -297,29 +339,26 @@ def confirmar_carrito(request):
         ).update(stock=F("stock") - cantidad)
 
         if actualizado:
-            comprados.append({
-                "nombre": producto.nombre,
-                "cantidad": cantidad,
-                "subtotal": producto.precio * cantidad,
-            })
-            exitosas.add(clave)
+            comprados.append({"nombre": producto.nombre, "cantidad": cantidad,
+                              "subtotal": producto.precio * cantidad})
         else:
             producto.refresh_from_db()
             errores.append(
                 f"{producto.nombre}: pediste {cantidad} y quedan {producto.stock}."
             )
 
-    if exitosas:
-        nuevo = {
-            clave: cantidad
-            for clave, cantidad in guardado.items()
-            if clave not in exitosas
-        }
+    if comprados:
+        nuevo = {}
+        for clave, cantidad in guardado.items():
+            producto = Producto.objects.filter(pk=int(clave)).first()
+            if producto is not None and any(c["nombre"] == producto.nombre for c in comprados):
+                continue
+            nuevo[clave] = cantidad
         bolsa.guardar_carrito(request, nuevo)
 
     contexto = {
         "comprados": comprados,
         "errores": errores,
-        "total": sum(item["subtotal"] for item in comprados),
+        "total": sum(c["subtotal"] for c in comprados),
     }
     return render(request, "catalogo/compra_lista.html", contexto)

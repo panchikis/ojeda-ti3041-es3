@@ -1,0 +1,47 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Editar producto · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Administración</span>
+            <h2>Editar producto.</h2>
+        </div>
+        <p>Estás editando <strong>{{ producto.nombre }}</strong>.</p>
+    </section>
+
+    <form class="formulario" method="post">
+        {% csrf_token %}
+
+        {% if errores %}
+            <div class="error">
+                {% for e in errores %}<p>{{ e }}</p>{% endfor %}
+            </div>
+        {% endif %}
+
+        <label for="nombre">Nombre del producto</label>
+        <input type="text" id="nombre" name="nombre" value="{{ datos.nombre|default:producto.nombre }}" required>
+
+        <label for="categoria">Categoría</label>
+        <input type="text" id="categoria" name="categoria" list="lista-categorias" value="{{ datos.categoria|default:producto.categoria.nombre }}" required>
+        <datalist id="lista-categorias">
+            {% for c in categorias %}<option value="{{ c }}"></option>{% endfor %}
+        </datalist>
+
+        <label for="precio">Precio (sin puntos ni comas)</label>
+        <input type="number" id="precio" name="precio" min="0" value="{{ datos.precio|default:producto.precio }}" required>
+
+        <label for="stock">Stock</label>
+        <input type="number" id="stock" name="stock" min="0" value="{{ datos.stock|default:producto.stock }}" required>
+
+        <label for="imagen">Imagen (ruta o URL)</label>
+        <input type="text" id="imagen" name="imagen" value="{{ datos.imagen|default:producto.imagen }}">
+
+        <button class="boton boton-naranja" type="submit">Guardar cambios</button>
+    </form>
+
+    <p class="volver">
+        <a href="{% url 'catalogo:lista' %}">Volver al catálogo sin guardar</a>
+    </p>
+{% endblock %}

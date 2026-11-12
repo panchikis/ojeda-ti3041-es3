@@ -1,0 +1,36 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Eliminar producto · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Administración</span>
+            <h2>¿Eliminar este producto?</h2>
+        </div>
+        <p>Esta acción no se puede deshacer.</p>
+    </section>
+
+    <article class="ficha ficha-confirmacion">
+        <div class="ficha-contenido">
+            <span class="categoria">{{ producto.categoria }}</span>
+            <h2>{{ producto.nombre }}</h2>
+            <dl>
+                <dt>Código</dt>
+                <dd>ALV-{{ producto.id|stringformat:"03d" }}</dd>
+                <dt>Precio</dt>
+                <dd>${{ producto.precio }}</dd>
+                <dt>Stock actual</dt>
+                <dd>{{ producto.stock }} unidades</dd>
+            </dl>
+
+            <div class="acciones-carrito">
+                <form method="post">
+                    {% csrf_token %}
+                    <button class="boton boton-naranja" type="submit">Sí, eliminar</button>
+                </form>
+                <a class="boton boton-claro" href="{% url 'catalogo:lista' %}">Cancelar</a>
+            </div>
+        </div>
+    </article>
+{% endblock %}

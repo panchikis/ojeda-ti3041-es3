@@ -105,11 +105,9 @@ a:hover { color: var(--orange-dark); }
 .compra-formulario label { color: var(--muted); display: block; font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; width: 100%; }
 .compra-formulario input { border: 1px solid var(--line); font: inherit; padding: .85rem; width: 6rem; }
 .compra-formulario .boton { margin-top: 0; }
-.stock-formulario { border-top: 1px solid var(--line); margin-top: 2rem; padding-top: 1.4rem; }
-.stock-formulario label { color: var(--muted); display: block; font-size: .78rem; font-weight: 600; letter-spacing: .04em; margin-bottom: .6rem; text-transform: uppercase; }
-.stock-formulario div { align-items: center; display: flex; gap: .7rem; }
-.stock-formulario input { border: 1px solid var(--line); font: inherit; padding: .8rem; width: 7rem; }
-.stock-formulario .boton { margin-top: 0; }
+.acciones-admin { display: flex; flex-wrap: wrap; gap: .7rem; margin: 1.5rem 0 0; }
+.acciones-admin .boton { margin-top: 0; }
+.boton-peligro { background: #a83226; color: white; }
 .ficha-contenido h2 { font-family: "Space Grotesk", sans-serif; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.05; margin: .7rem 0 1rem; }
 .ficha-descripcion { color: var(--muted); line-height: 1.6; }
 .ficha-precio { font-family: "Space Grotesk", sans-serif; font-size: 2rem; font-weight: 700; margin: 2rem 0; }
