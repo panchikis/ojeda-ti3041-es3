@@ -1,0 +1,46 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Reporte por categoría · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Reportes</span>
+            <h2>Resumen por categoría.</h2>
+        </div>
+        <p>Cantidad de productos, precio promedio y stock total agrupados por categoría.</p>
+    </section>
+
+    <div class="reporte-tabla-contenedor">
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Productos</th>
+                    <th scope="col">Precio promedio</th>
+                    <th scope="col">Stock total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                    <tr>
+                        <td>{{ categoria.nombre }}</td>
+                        <td>{{ categoria.cantidad_productos }}</td>
+                        <td>
+                            {% if categoria.precio_promedio is not None %}
+                                ${{ categoria.precio_promedio|floatformat:0 }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+                        <td>{{ categoria.stock_total|default:0 }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td class="reporte-vacio" colspan="4">No hay categorías para mostrar.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends "catalogo/base.html" %}
+
+{% block titulo %}Reporte de stock crítico · Ferretería Alvarito{% endblock %}
+
+{% block contenido %}
+    <section class="encabezado-catalogo">
+        <div>
+            <span class="eyebrow texto-oscuro">Reportes</span>
+            <h2>Productos con stock crítico.</h2>
+        </div>
+        <p>Revisa los productos que tienen existencias iguales o inferiores al umbral elegido.</p>
+    </section>
+
+    <form class="filtro-reporte" method="get">
+        <label for="umbral">
+            Umbral de stock
+            <input id="umbral" name="umbral" type="number" min="0" value="{{ umbral }}">
+        </label>
+        <button class="boton boton-naranja" type="submit">Aplicar filtro</button>
+    </form>
+
+    {% if error_umbral %}
+        <div class="error"><p>{{ error_umbral }} Se utilizó el valor predeterminado de 10.</p></div>
+    {% endif %}
+
+    <div class="reporte-tabla-contenedor">
+        <table class="reporte-tabla">
+            <thead>
+                <tr>
+                    <th scope="col">Producto</th>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Precio</th>
+                    <th scope="col">Stock</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                    <tr>
+                        <td><a href="{% url 'catalogo:detalle' producto.id %}">{{ producto.nombre }}</a></td>
+                        <td>{{ producto.categoria.nombre }}</td>
+                        <td>${{ producto.precio }}</td>
+                        <td>{{ producto.stock }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td class="reporte-vacio" colspan="4">No hay productos con stock igual o inferior a {{ umbral }}.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

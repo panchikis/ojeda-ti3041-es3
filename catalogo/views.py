@@ -1,4 +1,4 @@
-from django.db.models import F
+from django.db.models import Avg, Count, F, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -52,6 +52,47 @@ def lista(request):
         "sin_stock": total - disponibles,
     }
     return render(request, "catalogo/lista.html", contexto)
+
+
+def reporte_categorias(request):
+    if request.session.get("rol") != "admin":
+        return redirect("cuentas:ingresar")
+
+    categorias = Categoria.objects.annotate(
+        cantidad_productos=Count("producto"),
+        precio_promedio=Avg("producto__precio"),
+        stock_total=Sum("producto__stock"),
+    ).order_by("nombre")
+
+    return render(
+        request,
+        "catalogo/reporte_categorias.html",
+        {"categorias": categorias},
+    )
+
+
+def reporte_stock_critico(request):
+    if request.session.get("rol") != "admin":
+        return redirect("cuentas:ingresar")
+
+    try:
+        umbral = int(request.GET.get("umbral", "10"))
+        if umbral < 0:
+            raise ValueError
+        error_umbral = ""
+    except ValueError:
+        umbral = 10
+        error_umbral = "Ingresa un umbral válido de cero o más unidades."
+
+    productos = Producto.objects.select_related("categoria").filter(
+        stock__lte=umbral,
+    ).order_by("stock", "nombre")
+    contexto = {
+        "productos": productos,
+        "umbral": umbral,
+        "error_umbral": error_umbral,
+    }
+    return render(request, "catalogo/reporte_stock.html", contexto)
 
 
 def detalle(request, id):

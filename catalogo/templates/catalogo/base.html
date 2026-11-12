@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=2">
 </head>
 <body>
 
@@ -22,6 +22,8 @@
                 <a href="{% url 'catalogo:inicio' %}">Inicio</a>
                 <a class="{% if request.resolver_match.url_name == 'lista' or request.resolver_match.url_name == 'detalle' or request.resolver_match.url_name == 'comprar' %}activo{% endif %}" href="{% url 'catalogo:lista' %}">Catálogo</a>
                 {% if request.session.rol == "admin" %}
+                    <a class="{% if request.resolver_match.url_name == 'reporte_categorias' %}activo{% endif %}" href="{% url 'catalogo:reporte_categorias' %}">Reporte por categoría</a>
+                    <a class="{% if request.resolver_match.url_name == 'reporte_stock_critico' %}activo{% endif %}" href="{% url 'catalogo:reporte_stock_critico' %}">Stock crítico</a>
                     <a class="{% if request.resolver_match.url_name == 'agregar_producto' %}activo{% endif %}" href="{% url 'catalogo:agregar_producto' %}">Agregar producto</a>
                 {% endif %}
                 <a href="#contacto">Contacto</a>

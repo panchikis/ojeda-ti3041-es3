@@ -42,6 +42,103 @@ class CatalogoViewsTests(TestCase):
         self.assertContains(lista, "/static/img/productos/martillo_carpintero_16oz.webp")
         self.assertContains(lista, "Martillo agotado")
 
+    def test_reporte_categorias_calcula_cantidad_promedio_y_stock(self):
+        self.guardar_sesion(rol="admin")
+        Producto.objects.create(
+            nombre="Destornillador",
+            stock=7,
+            precio=11000,
+            categoria=self.categoria,
+        )
+
+        respuesta = self.client.get(reverse("catalogo:reporte_categorias"))
+
+        self.assertEqual(respuesta.status_code, 200)
+        resumen = respuesta.context["categorias"].get()
+        self.assertEqual(resumen.cantidad_productos, 2)
+        self.assertEqual(resumen.precio_promedio, 9995)
+        self.assertEqual(resumen.stock_total, 12)
+        self.assertContains(respuesta, "Herramientas manuales")
+        self.assertContains(respuesta, "Precio promedio")
+
+    def test_reporte_stock_filtra_ordena_y_muestra_enlaces_de_navegacion(self):
+        self.guardar_sesion(rol="admin")
+        Producto.objects.create(
+            nombre="Nivel",
+            stock=2,
+            precio=5000,
+            categoria=self.categoria,
+        )
+        Producto.objects.create(
+            nombre="Alicate",
+            stock=2,
+            precio=6000,
+            categoria=self.categoria,
+        )
+
+        respuesta = self.client.get(
+            reverse("catalogo:reporte_stock_critico"),
+            {"umbral": "2"},
+        )
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(
+            list(respuesta.context["productos"].values_list("nombre", flat=True)),
+            ["Alicate", "Nivel"],
+        )
+        self.assertContains(respuesta, "Stock crítico")
+        self.assertContains(respuesta, reverse("catalogo:reporte_categorias"))
+        self.assertContains(respuesta, reverse("catalogo:reporte_stock_critico"))
+
+    def test_reporte_stock_usa_umbral_predeterminado_si_el_ingresado_no_es_valido(self):
+        self.guardar_sesion(rol="admin")
+        respuesta = self.client.get(
+            reverse("catalogo:reporte_stock_critico"),
+            {"umbral": "-1"},
+        )
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(respuesta.context["umbral"], 10)
+        self.assertContains(respuesta, "Ingresa un umbral válido")
+
+    def test_reportes_solo_son_accesibles_para_admin(self):
+        for reporte in ("reporte_categorias", "reporte_stock_critico"):
+            with self.subTest(reporte=reporte):
+                respuesta = self.client.get(reverse(f"catalogo:{reporte}"))
+                self.assertRedirects(
+                    respuesta,
+                    reverse("cuentas:ingresar"),
+                    fetch_redirect_response=False,
+                )
+
+        self.guardar_sesion(rol="cliente")
+        for reporte in ("reporte_categorias", "reporte_stock_critico"):
+            with self.subTest(reporte=reporte, rol="cliente"):
+                respuesta = self.client.get(reverse(f"catalogo:{reporte}"))
+                self.assertRedirects(
+                    respuesta,
+                    reverse("cuentas:ingresar"),
+                    fetch_redirect_response=False,
+                )
+
+    def test_enlaces_de_reportes_solo_aparecen_para_admin(self):
+        respuesta_cliente = self.client.get(reverse("catalogo:inicio"))
+        self.assertNotContains(respuesta_cliente, "Reporte por categoría")
+        self.assertNotContains(respuesta_cliente, "Stock crítico")
+
+        self.guardar_sesion(rol="admin")
+        respuesta_admin = self.client.get(reverse("catalogo:inicio"))
+        self.assertContains(respuesta_admin, "Reporte por categoría")
+        self.assertContains(respuesta_admin, "Stock crítico")
+
+    def test_paginas_cargan_css_desde_ruta_estatica_absoluta(self):
+        self.guardar_sesion(rol="admin")
+
+        respuesta = self.client.get(reverse("catalogo:reporte_stock_critico"))
+
+        self.assertContains(respuesta, 'href="/static/css/style.css?v=2"')
+        self.assertContains(respuesta, 'class="reporte-tabla"')
+
     def test_detalle_y_imagen_svg_cargan_producto_de_la_base_de_datos(self):
         detalle = self.client.get(
             reverse("catalogo:detalle", args=[self.producto.pk])

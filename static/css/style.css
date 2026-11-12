@@ -20,7 +20,7 @@ a:hover { color: var(--orange-dark); }
 .marca { align-items: center; display: flex; font-family: "Space Grotesk", sans-serif; font-size: .9rem; font-weight: 600; letter-spacing: .06em; line-height: 1; }
 .marca strong { color: #f4a33a; display: block; font-size: 1.05rem; }
 .marca-icono { align-items: center; border: 2px solid #f4a33a; color: #f4a33a; display: flex; font-size: 1.8rem; height: 2.25rem; justify-content: center; margin-right: .7rem; transform: rotate(45deg); width: 2.25rem; }
-.navegacion { display: flex; gap: 2rem; margin-left: auto; }
+.navegacion { display: flex; gap: 1rem; margin-left: auto; }
 .navegacion a { color: #c5cdca; font-size: .85rem; padding: .6rem 0; }
 .navegacion a.activo { border-bottom: 2px solid var(--orange); color: white; }
 .acciones-cabecera { align-items: center; color: #c5cdca; display: flex; gap: 1rem; }
@@ -229,6 +229,20 @@ dd { font-weight: 600; }
 .acciones-carrito .boton { border: none; cursor: pointer; font: inherit; }
 .carrito-vacio { background: var(--white); border: 1px solid var(--line); margin-bottom: 3rem; padding: 3rem 2rem; text-align: center; }
 .carrito-vacio p { color: var(--muted); margin-bottom: 1.4rem; }
+.reporte-tabla-contenedor { background: var(--white); border: 2px solid #d98500; margin-bottom: 3rem; max-width: 760px; overflow-x: auto; }
+.reporte-tabla { border-collapse: collapse; min-width: 680px; text-align: center; width: 100%; }
+.reporte-tabla th, .reporte-tabla td { border: 1px solid #d98500; padding: .8rem 1rem; }
+.reporte-tabla th { background: #f4a33a; color: var(--ink); font-size: .82rem; font-weight: 700; }
+.reporte-tabla tbody tr { background: #fffdf8; }
+.reporte-tabla tbody tr:nth-child(even) { background: #fff5e3; }
+.reporte-tabla tbody tr:hover { background: #ffedcb; }
+.reporte-tabla td { font-size: .9rem; }
+.reporte-tabla td a { color: var(--orange-dark); font-weight: 600; }
+.reporte-tabla .reporte-vacio { color: var(--muted); padding: 2rem; text-align: center; }
+.filtro-reporte { align-items: end; background: var(--white); border: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: 1.5rem; max-width: 520px; padding: 1.2rem; }
+.filtro-reporte label { color: var(--muted); display: grid; flex: 1 1 180px; font-size: .78rem; font-weight: 600; gap: .4rem; text-transform: uppercase; }
+.filtro-reporte input { border: 1px solid var(--line); font: inherit; padding: .75rem; }
+.filtro-reporte .boton { cursor: pointer; margin: 0; }
 
 @media (max-width: 800px) {
     .carrito-linea {
